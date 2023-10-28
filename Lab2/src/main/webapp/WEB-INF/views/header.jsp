@@ -53,7 +53,7 @@
                     <a href="<c:url value="/login"/>" type="button" class="btn btn-primary px-3 me-2">
                         Логин
                     </a>
-                    <a href="<c:url value="/register"/>" type="button" class="btn btn-primary me-3">
+                    <a href="<c:url value="/registration"/>" type="button" class="btn btn-primary me-3">
                         Регистрация
                     </a>
                 </div>

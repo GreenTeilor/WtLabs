@@ -2,6 +2,7 @@ package by.bsuir.listeners;
 
 import by.bsuir.constants.SessionAttributesNames;
 import by.bsuir.constants.Values;
+import by.bsuir.domain.Cart;
 import by.bsuir.domain.PagingParams;
 import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpSession;
@@ -20,5 +21,6 @@ public class SessionListener implements HttpSessionListener {
                 new PagingParams(Values.DEFAULT_START_PAGE, Values.DEFAULT_PAGE_SIZE));
         httpSession.setAttribute(SessionAttributesNames.ORDER_PAGING_PARAMS,
                 new PagingParams(Values.DEFAULT_START_PAGE, Values.DEFAULT_PAGE_SIZE));
+        httpSession.setAttribute(SessionAttributesNames.CART, new Cart());
     }
 }

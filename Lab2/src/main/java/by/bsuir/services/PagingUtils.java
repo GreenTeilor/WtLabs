@@ -6,6 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 public class PagingUtils {
+    private PagingUtils() {
+
+    }
+
     public static PagingParams updatePagingParams(HttpServletRequest request, String sessionAttributeName) {
         HttpSession session = request.getSession();
         PagingParams params = (PagingParams) session.getAttribute(sessionAttributeName);
