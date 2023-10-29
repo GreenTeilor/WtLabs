@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
+<%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c' %>
 <%@ page import="by.bsuir.domain.Cart" %>
 <%@ page import="by.bsuir.constants.SessionAttributesNames" %>
 
@@ -40,11 +40,19 @@
                     <li>
                         <a class="nav-link" href="<c:url value="/search"/>">&#128269 Поиск</a>
                     </li>
-                    <sec:authorize access="hasRole('ADMIN')">
+                    <c:if test="${sessionScope.user != null && sessionScope.user.hasRole(\"ROLE_ADMIN\")}">
                         <li>
                             <a class="nav-link" href="<c:url value="/admin"/>">&#128297 Администрирование</a>
                         </li>
-                    </sec:authorize>
+                    </c:if>
+                    <li>
+                        <div class="language">
+                            <img src="<c:url value="/assets/lang_ru.png"/>" alt="ru" data-google-lang="ru"
+                                 class="language_img">
+                            <img src="<c:url value="/assets/lang_en.png"/>" alt="en" data-google-lang="en"
+                                 class="language_img">
+                        </div>
+                    </li>
                 </ul>
             </div>
 

@@ -1,6 +1,16 @@
 @import url('https://fonts.cdnfonts.com/css/font-lore-cyrillic');
 
+.skiptranslate {
+    display: none;
+    height: 0;
+}
+.language_img {
+    cursor: pointer;
+    height: 35px;
+}
+
 body {
+    top: 0 !important;
     background-image: url("../assets/background.jpg");
     color: white;
     font-family: 'FuturisXC', serif;

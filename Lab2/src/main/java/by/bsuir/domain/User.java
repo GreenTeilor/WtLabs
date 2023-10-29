@@ -26,4 +26,7 @@ public class User extends BaseEntity {
     private List<Order> orders;
     private List<Role> roles;
 
+    public boolean hasRole(String role) {
+        return roles.stream().map(Role::getName).toList().contains(role);
+    }
 }

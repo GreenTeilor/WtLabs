@@ -1,7 +1,10 @@
 package by.bsuir.repositories;
 
+import by.bsuir.constants.Messages;
 import by.bsuir.domain.Order;
+import by.bsuir.domain.PagingParams;
 import by.bsuir.domain.Role;
+import by.bsuir.domain.Statistics;
 import by.bsuir.domain.User;
 import by.bsuir.exceptions.ConnectionException;
 import lombok.NoArgsConstructor;
@@ -25,9 +28,18 @@ public class UserRepository {
     private final static String GET_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
     private final static String GET_USER_BY_CREDENTIALS = "SELECT * FROM users WHERE email = ? AND password = ?";
     private final static String GET_USER_ORDERS = "SELECT * FROM orders JOIN orders_products " +
-            "ON orders.id = orders_products.orderId WHERE orders.id = ?";
+            "ON orders.id = orders_products.orderId WHERE orders.id = ? LIMIT ?, ?";
     private final static String GET_USER_ROLES = "SELECT roles.id, roles.name FROM roles JOIN " +
             "users_roles ON roles.id = users_roles.roleId WHERE users_roles.userId = ?";
+    private final static String UPDATE_ADDRESS_AND_PHONE_NUMBER = "UPDATE users SET address = ?, phoneNumber = ? " +
+            "WHERE id = ?";
+    private final static String GET_USER_FAVORITE_CATEGORY = "SELECT category FROM (SELECT category, count(*) as count " +
+            "FROM orders_products JOIN products ON productId = products.id " +
+            "JOIN orders ON orderId = orders.id WHERE userId = ? GROUP BY category) as res1 ORDER BY count DESC LIMIT 1";
+    private final static String GET_USER_DAYS_REGISTERED = "SELECT DATEDIFF(CURRENT_DATE, registrationDate) " +
+            "as result FROM users WHERE id = ?";
+    private final static String GET_USER_PURCHASED_BOOKS_COUNT = "SELECT count(*) FROM orders_products JOIN orders ON orderId = orders.id WHERE userId = ?";
+    private final static String GET_USER_ORDERS_COUNT = "SELECT count(*) FROM orders WHERE userId = ?";
 
     public void persist(User user) throws SQLException, ConnectionException {
         Connection connection = pool.getConnection();
@@ -83,7 +95,7 @@ public class UserRepository {
 
         //Get user orders and roles
         if (user.isPresent()) {
-            user.get().setOrders(getOrders(user.get().getId()));
+            user.get().setOrders(getOrders(user.get().getId(), new PagingParams(0, 1000_000)));
             user.get().setRoles(getRoles(user.get().getId()));
         }
 
@@ -109,7 +121,7 @@ public class UserRepository {
 
         //Get user orders and roles
         if (user.isPresent()) {
-            user.get().setOrders(getOrders(user.get().getId()));
+            user.get().setOrders(getOrders(user.get().getId(), new PagingParams(0, 1000_000)));
             user.get().setRoles(getRoles(user.get().getId()));
         }
 
@@ -134,11 +146,14 @@ public class UserRepository {
                 build();
     }
 
-    public List<Order> getOrders(int userId) throws ConnectionException, SQLException {
+    public List<Order> getOrders(int userId, PagingParams params) throws ConnectionException, SQLException {
         List<Order> result = new ArrayList<>();
         Connection connection = pool.getConnection();
         try (PreparedStatement statement = connection.prepareStatement(GET_USER_ORDERS)) {
+            int startPosition = params.getPageNumber() * params.getPageSize();
             statement.setInt(1, userId);
+            statement.setInt(2, startPosition);
+            statement.setInt(3, params.getPageSize());
             ResultSet set = statement.executeQuery();
             while (set.next()) {
                 result.add(Order.
@@ -175,5 +190,92 @@ public class UserRepository {
             pool.returnConnection(connection);
         }
         return result;
+    }
+
+    public void updateAddressAndPhoneNumber(String address, String phoneNumber, int userId) throws ConnectionException, SQLException {
+        Connection connection = pool.getConnection();
+        try(PreparedStatement statement = connection.prepareStatement(UPDATE_ADDRESS_AND_PHONE_NUMBER)) {
+            statement.setString(1, address);
+            statement.setString(2, phoneNumber);
+            statement.setInt(3, userId);
+            statement.execute();
+        } finally {
+            pool.returnConnection(connection);
+        }
+    }
+
+    public Statistics getStatistics(int userId) throws SQLException, ConnectionException {
+        return Statistics.
+                builder().
+                userId(userId).
+                daysRegistered(getDaysRegistered(userId)).
+                orderCount(getOrdersCount(userId)).
+                booksCount(getPurchasedBooksCount(userId)).
+                favoriteCategory(getFavoriteCategory(userId)).
+                build();
+    }
+
+    public String getFavoriteCategory(int userId) throws ConnectionException, SQLException {
+        String result = Messages.UNKNOWN;
+        Connection connection = pool.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(GET_USER_FAVORITE_CATEGORY)) {
+            statement.setInt(1, userId);
+            ResultSet set = statement.executeQuery();
+            if (set.next()) {
+                result = set.getString(1);
+            }
+            set.close();
+            return result;
+        } finally {
+            pool.returnConnection(connection);
+        }
+    }
+
+    public int getDaysRegistered(int userId) throws ConnectionException, SQLException {
+        int result = 0;
+        Connection connection = pool.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(GET_USER_DAYS_REGISTERED)) {
+            statement.setInt(1, userId);
+            ResultSet set = statement.executeQuery();
+            if (set.next()) {
+                result = set.getInt(1);
+            }
+            set.close();
+            return result;
+        } finally {
+            pool.returnConnection(connection);
+        }
+    }
+
+    public int getPurchasedBooksCount(int userId) throws ConnectionException, SQLException {
+        int result = 0;
+        Connection connection = pool.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(GET_USER_PURCHASED_BOOKS_COUNT)) {
+            statement.setInt(1, userId);
+            ResultSet set = statement.executeQuery();
+            if (set.next()) {
+                result = set.getInt(1);
+            }
+            set.close();
+            return result;
+        } finally {
+            pool.returnConnection(connection);
+        }
+    }
+
+    public int getOrdersCount(int userId) throws ConnectionException, SQLException {
+        int result = 0;
+        Connection connection = pool.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(GET_USER_ORDERS_COUNT)) {
+            statement.setInt(1, userId);
+            ResultSet set = statement.executeQuery();
+            if (set.next()) {
+                result = set.getInt(1);
+            }
+            set.close();
+            return result;
+        } finally {
+            pool.returnConnection(connection);
+        }
     }
 }

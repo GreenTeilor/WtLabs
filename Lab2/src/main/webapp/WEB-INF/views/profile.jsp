@@ -1,7 +1,6 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <html>
 <head>
@@ -17,8 +16,6 @@
 <div class="wrapper">
     <jsp:include page="header.jsp"/>
     <div class="main">
-        <c:set var="user" value="${user}"/>
-        <c:set var="statistics" value="${statistics}"/>
         <section class="section about-section gray-bg" id="about">
             <div class="container">
                 <div class="row align-items-center flex-row-reverse">
@@ -29,31 +26,31 @@
                                 <div class="col-md-6">
                                     <div class="media">
                                         <label>Имя</label>
-                                        <p>${user.getName()}</p>
+                                        <p>${sessionScope.user.getName()}</p>
                                     </div>
                                     <div class="media">
                                         <label>Фамилия</label>
-                                        <p>${user.getLastName()}</p>
+                                        <p>${sessionScope.user.getLastName()}</p>
                                     </div>
                                     <div class="media">
                                         <label>email</label>
-                                        <p>${user.getEmail()}</p>
+                                        <p>${sessionScope.user.getEmail()}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="media">
                                         <label>Дата рождения</label>
-                                        <p>${user.getBirthDate()}</p>
+                                        <p>${sessionScope.user.getBirthDate()}</p>
                                     </div>
                                     <c:choose>
-                                        <c:when test="${user.getAddress() != null && user.getPhoneNumber() != null}">
+                                        <c:when test="${sessionScope.user.getAddress() != null && sessionScope.user.getPhoneNumber() != null}">
                                             <div class="media">
                                                 <label>Адрес</label>
-                                                <p>${user.getAddress()}</p>
+                                                <p>${sessionScope.user.getAddress()}</p>
                                             </div>
                                             <div class="media">
                                                 <label>Телефон</label>
-                                                <p>${user.getPhoneNumber()}</p>
+                                                <p>${sessionScope.user.getPhoneNumber()}</p>
                                             </div>
                                         </c:when>
                                         <c:otherwise>
@@ -65,7 +62,7 @@
                                                                id="address"
                                                                placeholder="Адрес">
                                                     </div>
-                                                    <div class="errorInput">${addressError}</div>
+                                                    <div class="errorInput">${requestScope.addressError}</div>
                                                 </div>
                                                 <div class="media">
                                                     <label for="phoneNumber">Номер телефона</label>
@@ -74,7 +71,7 @@
                                                                id="phoneNumber"
                                                                placeholder="Номер телефона">
                                                     </div>
-                                                    <div class="errorInput">${phoneNumberError}</div>
+                                                    <div class="errorInput">${requestScope.phoneNumberError}</div>
                                                 </div>
                                                 <button class="input-button btn btn-primary" type="submit">Отправить
                                                 </button>
@@ -96,28 +93,28 @@
                     <div class="row">
                         <div class="col-md-6 col-lg-3">
                             <div class="count-data text-center">
-                                <h6 class="count h2" data-to="500" data-speed="500">${statistics.getDaysRegistered()}
+                                <h6 class="count h2" data-to="500" data-speed="500">${requestScope.statistics.getDaysRegistered()}
                                     дней</h6>
                                 <p class="m-0px font-w-600">С нами</p>
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-3">
                             <div class="count-data text-center">
-                                <h6 class="count h2" data-to="150" data-speed="150">${statistics.getOrderCount()}</h6>
+                                <h6 class="count h2" data-to="150" data-speed="150">${requestScope.statistics.getOrderCount()}</h6>
                                 <p class="m-0px font-w-600">Сделано заказов</p>
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-3">
                             <div class="count-data text-center">
-                                <h6 class="count h2" data-to="850" data-speed="850">${statistics.getBooksCount()}</h6>
+                                <h6 class="count h2" data-to="850" data-speed="850">${requestScope.statistics.getBooksCount()}</h6>
                                 <p class="m-0px font-w-600">Куплено книг</p>
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-3">
                             <div class="count-data text-center">
                                 <h6 class="count h2" data-to="190"
-                                    data-speed="190">${statistics.getFavoriteGenre()}</h6>
-                                <p class="m-0px font-w-600">Любимый жанр</p>
+                                    data-speed="190">${requestScope.statistics.getFavoriteCategory()}</h6>
+                                <p class="m-0px font-w-600">Любимая категория</p>
                             </div>
                         </div>
                     </div>
@@ -128,24 +125,10 @@
             <div class="history">
                 <div class="count-data text-center">
                     <h6 class="count h2" data-to="500" data-speed="500">История заказов</h6>
-                    <sec:authorize access="hasRole('ADMIN')">
-                        <form method="POST" action="<c:url value="/profile/csv/exportOrders"/>">
-                            <button type="submit" class="btn btn-primary">Экспорт заказов</button>
-                        </form>
-                        <form method="POST" action="<c:url value="/profile/csv/importOrders"/>"
-                              enctype="multipart/form-data"
-                              class="file-import">
-                            <label class="label">
-                                <i>&#128204</i>
-                                <input id="file" name="file" type="file" class="title" accept=".csv">
-                            </label>
-                            <button type="submit" class="btn btn-primary">Импорт заказов</button>
-                        </form>
-                    </sec:authorize>
                 </div>
             </div>
 
-            <c:forEach items="${orders}" var="order">
+            <c:forEach items="${requestScope.orders}" var="order">
                 <div class="history">
                     <div class="generalData">
                         <div style="display: inline-block;">
@@ -182,12 +165,11 @@
             </c:forEach>
 
         </section>
-        <c:set var="params" value="${orderPagingParams}"/>
         <div class="pagination-management">
             <nav class="pagination-nav">
                 <ul class="pagination">
                     <li class="page-item"><a class="page-link"
-                                             href="<c:url value="/profile/paging?pageNumber=${params.getPageNumber() - 1}"/>"><<</a>
+                                             href="<c:url value="/profile/paging?pageNumber=${sessionScope.orderPagingParams.getPageNumber() - 1}"/>"><<</a>
                     </li>
                     <li class="page-item"><a class="page-link"
                                              href="<c:url value="/profile/paging?pageNumber=0"/>">1</a></li>
@@ -196,7 +178,7 @@
                     <li class="page-item"><a class="page-link"
                                              href="<c:url value="/profile/paging?pageNumber=2"/>">3</a></li>
                     <li class="page-item"><a class="page-link"
-                                             href="<c:url value="/profile/paging?pageNumber=${params.getPageNumber() + 1}"/>">>></a>
+                                             href="<c:url value="/profile/paging?pageNumber=${sessionScope.orderPagingParams.getPageNumber() + 1}"/>">>></a>
                     </li>
                 </ul>
             </nav>

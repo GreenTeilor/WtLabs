@@ -48,12 +48,13 @@ public class ProductRepository {
     }
 
     public Optional<Product> getProductById(int id) throws ConnectionException, SQLException {
+        Optional<Product> product = Optional.empty();
         Connection connection = pool.getConnection();
         try (PreparedStatement statement = connection.prepareStatement(GET_PRODUCT_BY_ID)) {
             statement.setInt(1, id);
             ResultSet set = statement.executeQuery();
             if (set.next()) {
-                return Optional.of(Product.
+                product =  Optional.of(Product.
                         builder().
                         id(set.getInt("id")).
                         name(set.getString("name")).
@@ -64,10 +65,10 @@ public class ProductRepository {
                         build());
             }
             set.close();
+            return product;
         } finally {
             pool.returnConnection(connection);
         }
-        return Optional.empty();
     }
 
     public List<Product> getOrderProducts(int orderId) throws ConnectionException, SQLException {

@@ -25,7 +25,7 @@
             <label for="password"></label><input type="password" name="password" id="password" placeholder="Пароль">
         </div>
         <div class="errorInput">${requestScope.passwordError}</div>
-        <button type="submit" class="btn mt-3">Войти</button>
+        <button type="submit" class="btn mt-3">Логин</button>
     </form>
     <div class="text-center fs-6">
         <span style="color: black">Нет аккаунта?</span> <a href="<c:url value="/registration"/>">Зарегистрироваться</a>
