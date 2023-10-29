@@ -23,10 +23,11 @@ public class UserRepository {
     private final static String ADD_USER = "INSERT INTO users (name, lastName, email, birthDate, " +
             "registrationDate, balance, password, address, phoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private final static String GET_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
+    private final static String GET_USER_BY_CREDENTIALS = "SELECT * FROM users WHERE email = ? AND password = ?";
     private final static String GET_USER_ORDERS = "SELECT * FROM orders JOIN orders_products " +
             "ON orders.id = orders_products.orderId WHERE orders.id = ?";
-    private final static String GET_USER_ROLES = "SELECT roles.id, roles.name FROM roles JOIN users_roles ON " +
-            "users.id = users_roles.userId WHERE users.id = ?";
+    private final static String GET_USER_ROLES = "SELECT roles.id, roles.name FROM roles JOIN " +
+            "users_roles ON roles.id = users_roles.roleId WHERE users_roles.userId = ?";
 
     public void persist(User user) throws SQLException, ConnectionException {
         Connection connection = pool.getConnection();
@@ -56,7 +57,7 @@ public class UserRepository {
         try (PreparedStatement statement = connection.prepareStatement(GET_USER_BY_EMAIL)) {
             statement.setString(1, userEmail);
             ResultSet set = statement.executeQuery();
-            boolean isPresent =  set.next();
+            boolean isPresent = set.next();
             set.close();
             return isPresent;
         } finally {
@@ -73,20 +74,7 @@ public class UserRepository {
             statement.setString(1, email);
             ResultSet set = statement.executeQuery();
             if (set.next()) {
-                user =  Optional.of(User.
-                        builder().
-                        id(set.getInt("id")).
-                        name(set.getString("name")).
-                        email(set.getString("email")).
-                        birthDate(set.getDate("birthDate").toLocalDate()).
-                        registrationDate(set.getDate("registrationDate").toLocalDate()).
-                        balance(set.getBigDecimal("balance")).
-                        password(set.getString("password")).
-                        address(set.getString("address")).
-                        phoneNumber(set.getString("phoneNumber")).
-                        orders(new ArrayList<>()).
-                        roles(new ArrayList<>()).
-                        build());
+                user = Optional.of(getUserInfo(set));
             }
             set.close();
         } finally {
@@ -100,6 +88,50 @@ public class UserRepository {
         }
 
         return user;
+    }
+
+    public Optional<User> getByCredentials(String email, String password) throws ConnectionException, SQLException {
+        Optional<User> user = Optional.empty();
+        Connection connection = pool.getConnection();
+
+        //Get all user info except orders and roles
+        try (PreparedStatement statement = connection.prepareStatement(GET_USER_BY_CREDENTIALS)) {
+            statement.setString(1, email);
+            statement.setString(2, password);
+            ResultSet set = statement.executeQuery();
+            if (set.next()) {
+                user = Optional.of(getUserInfo(set));
+            }
+            set.close();
+        } finally {
+            pool.returnConnection(connection);
+        }
+
+        //Get user orders and roles
+        if (user.isPresent()) {
+            user.get().setOrders(getOrders(user.get().getId()));
+            user.get().setRoles(getRoles(user.get().getId()));
+        }
+
+        return user;
+    }
+
+    private User getUserInfo(ResultSet set) throws SQLException {
+        return User.
+                builder().
+                id(set.getInt("id")).
+                name(set.getString("name")).
+                lastName(set.getString("lastName")).
+                email(set.getString("email")).
+                birthDate(set.getDate("birthDate").toLocalDate()).
+                registrationDate(set.getDate("registrationDate").toLocalDate()).
+                balance(set.getBigDecimal("balance")).
+                password(set.getString("password")).
+                address(set.getString("address")).
+                phoneNumber(set.getString("phoneNumber")).
+                orders(new ArrayList<>()).
+                roles(new ArrayList<>()).
+                build();
     }
 
     public List<Order> getOrders(int userId) throws ConnectionException, SQLException {
