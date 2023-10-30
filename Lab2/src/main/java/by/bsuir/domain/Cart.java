@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class Cart {
-    private List<Product> cart;
+    private final List<Product> cart;
 
     public Cart() {
         cart = new ArrayList<>();
@@ -19,7 +19,7 @@ public class Cart {
 
     public void removeProduct(int id) {
         Optional<Product> product = cart.stream().filter(p -> p.getId() == id).findFirst();
-        product.ifPresent(p -> cart.remove(p));
+        product.ifPresent(cart::remove);
     }
 
     public BigDecimal getPrice() {

@@ -19,6 +19,7 @@ public class ProductRepository {
     private final static String GET_PRODUCTS_BY_CATEGORY_NAME = "SELECT * FROM products WHERE category = ? LIMIT ?, ?";
     private final static String GET_PRODUCT_BY_ID = "SELECT * FROM products WHERE id = ?";
     private final static String GET_ORDER_PRODUCTS = "SELECT * FROM orders_products JOIN products ON orders_products.productId = products.id WHERE orderId = ?";
+    private final static String PERSIST_PRODUCT = "INSERT INTO products (name, description, imagePath, category, price) VALUES (?, ?, ?, ?, ?)";
 
     public List<Product> getProductsByCategory(String category, PagingParams params) throws ConnectionException, SQLException {
         List<Product> result = new ArrayList<>();
@@ -93,5 +94,19 @@ public class ProductRepository {
             pool.returnConnection(connection);
         }
         return result;
+    }
+
+    public void persist(Product product) throws ConnectionException, SQLException {
+        Connection connection = pool.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(PERSIST_PRODUCT)) {
+            statement.setString(1, product.getName());
+            statement.setString(2, product.getDescription());
+            statement.setString(3, product.getImagePath());
+            statement.setString(4, product.getCategory());
+            statement.setBigDecimal(5, product.getPrice());
+            statement.execute();
+        } finally {
+            pool.returnConnection(connection);
+        }
     }
 }

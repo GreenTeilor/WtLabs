@@ -10,7 +10,8 @@ import lombok.SneakyThrows;
 
 @WebServlet(urlPatterns = {"/profile", "/profile/*"})
 public class ProfileServlet extends MappingServlet {
-    ProfileService profileService = new ProfileService();
+    private final ProfileService profileService = new ProfileService();
+
     public ProfileServlet() {
         this.urlMappingRegistrar.
                 get("/", this::open).

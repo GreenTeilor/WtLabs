@@ -15,12 +15,13 @@ import java.util.List;
 @NoArgsConstructor
 public class CategoryRepository {
     private final static ConnectionPool pool = ConnectionPool.getInstance();
-    private final static String GET_CATEGORIES_QUERY = "SELECT * FROM categories LIMIT ?, ?";
+    private final static String GET_CATEGORIES = "SELECT * FROM categories LIMIT ?, ?";
+    private final static String PERSIST_CATEGORY = "INSERT INTO categories (name, imagePath) VALUES(?, ?)";
 
     public List<Category> getCategories(PagingParams params) throws ConnectionException, SQLException {
         List<Category> result = new ArrayList<>();
         Connection connection = pool.getConnection();
-        try (PreparedStatement statement = connection.prepareStatement(GET_CATEGORIES_QUERY)) {
+        try (PreparedStatement statement = connection.prepareStatement(GET_CATEGORIES)) {
             int startPosition = params.getPageNumber() * params.getPageSize();
             statement.setInt(1, startPosition);
             statement.setInt(2, params.getPageSize());
@@ -38,5 +39,16 @@ public class CategoryRepository {
             pool.returnConnection(connection);
         }
         return result;
+    }
+
+    public void persist(Category category) throws ConnectionException, SQLException {
+        Connection connection = pool.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(PERSIST_CATEGORY)) {
+            statement.setString(1, category.getName());
+            statement.setString(2, category.getImagePath());
+            statement.execute();
+        } finally {
+            pool.returnConnection(connection);
+        }
     }
 }

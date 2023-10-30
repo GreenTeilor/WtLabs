@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @NoArgsConstructor
 public class ProductService {
-    ProductRepository productRepository = new ProductRepository();
+    private final ProductRepository productRepository = new ProductRepository();
 
     public void getProduct(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet,
                                     String id) throws DbException, ServiceException {
