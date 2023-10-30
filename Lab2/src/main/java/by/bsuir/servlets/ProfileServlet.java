@@ -30,6 +30,6 @@ public class ProfileServlet extends MappingServlet {
 
     @SneakyThrows
     private void addAddressAndPhoneNumber(HttpServletRequest request, HttpServletResponse response, ServletUrl servletUrl) {
-        profileService.addAddressAndPhoneNumber(request, response, this);
+        profileService.addAddressAndPhoneNumber(request, response);
     }
 }

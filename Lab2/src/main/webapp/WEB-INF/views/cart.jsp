@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
@@ -17,7 +17,7 @@
     <div class="main">
         <div class="container-fluid">
             <div class="row">
-                <c:forEach items="${cart.getProducts()}" var="product">
+                <c:forEach items="${sessionScope.cart.getProducts()}" var="product">
                     <div class="col d-flex justify-content-center">
                         <div class="card" style="width: 22rem; margin: 20px; background-color: #dee2e6">
                             <a href="<c:url value="/products/${product.getId()}"/>"><img
@@ -43,10 +43,10 @@
                 <a href="<c:url value="/cart/clear"/>" class="btn btn-primary btn-rounded">Очистить</a>
             </div>
             <div>
-                <a>Цена: ${cart.getPrice()}</a>
+                <a>Цена: ${sessionScope.cart.getPrice()}</a>
             </div>
             <div>
-                <a style="color: ${color}">${status}</a>
+                <a style="color: ${requestScope.color}">${requestScope.status}</a>
             </div>
         </div>
     </div>

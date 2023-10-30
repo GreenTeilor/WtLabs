@@ -53,4 +53,14 @@ public class HomeService {
             throw new ServiceException(ExceptionMessages.SERVICE_EXCEPTION);
         }
     }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response)
+            throws ServiceException {
+        try {
+            request.getSession().setAttribute(SessionAttributesNames.USER, null);
+            response.sendRedirect(request.getContextPath() + "/login");
+        } catch (IOException e) {
+            throw new ServiceException(ExceptionMessages.SERVICE_EXCEPTION);
+        }
+    }
 }

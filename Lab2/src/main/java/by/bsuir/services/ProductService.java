@@ -32,7 +32,8 @@ public class ProductService {
                 throw new NumberFormatException("id is not a number");
             }
             Optional<Product> product = productRepository.getProductById(Integer.parseInt(id));
-            request.setAttribute(RequestAttributesNames.PRODUCT, product.orElseThrow(() -> new IOException("")));
+            request.setAttribute(RequestAttributesNames.PRODUCT, product.orElseThrow(() ->
+                    new IOException("No product with given id")));
             product.ifPresent(p -> request.setAttribute(RequestAttributesNames.PRODUCT, p));
             requestDispatcher.forward(request, response);
         } catch (ConnectionException | SQLException e) {

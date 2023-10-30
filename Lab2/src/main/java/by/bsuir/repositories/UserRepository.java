@@ -1,20 +1,24 @@
 package by.bsuir.repositories;
 
 import by.bsuir.constants.Messages;
+import by.bsuir.domain.Cart;
 import by.bsuir.domain.Order;
 import by.bsuir.domain.PagingParams;
+import by.bsuir.domain.Product;
 import by.bsuir.domain.Role;
 import by.bsuir.domain.Statistics;
 import by.bsuir.domain.User;
 import by.bsuir.exceptions.ConnectionException;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +30,9 @@ public class UserRepository {
     private final static String ADD_USER = "INSERT INTO users (name, lastName, email, birthDate, " +
             "registrationDate, balance, password, address, phoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private final static String GET_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
+    private final static String GET_USER_BALANCE = "SELECT balance FROM users WHERE id = ?";
     private final static String GET_USER_BY_CREDENTIALS = "SELECT * FROM users WHERE email = ? AND password = ?";
-    private final static String GET_USER_ORDERS = "SELECT * FROM orders JOIN orders_products " +
-            "ON orders.id = orders_products.orderId WHERE orders.id = ? LIMIT ?, ?";
+    private final static String GET_USER_ORDERS = "SELECT * FROM orders WHERE orders.userId = ? LIMIT ?, ?";
     private final static String GET_USER_ROLES = "SELECT roles.id, roles.name FROM roles JOIN " +
             "users_roles ON roles.id = users_roles.roleId WHERE users_roles.userId = ?";
     private final static String UPDATE_ADDRESS_AND_PHONE_NUMBER = "UPDATE users SET address = ?, phoneNumber = ? " +
@@ -38,8 +42,13 @@ public class UserRepository {
             "JOIN orders ON orderId = orders.id WHERE userId = ? GROUP BY category) as res1 ORDER BY count DESC LIMIT 1";
     private final static String GET_USER_DAYS_REGISTERED = "SELECT DATEDIFF(CURRENT_DATE, registrationDate) " +
             "as result FROM users WHERE id = ?";
-    private final static String GET_USER_PURCHASED_BOOKS_COUNT = "SELECT count(*) FROM orders_products JOIN orders ON orderId = orders.id WHERE userId = ?";
+    private final static String GET_USER_PURCHASED_BOOKS_COUNT = "SELECT count(*) FROM orders_products JOIN orders " +
+            "ON orderId = orders.id WHERE userId = ?";
     private final static String GET_USER_ORDERS_COUNT = "SELECT count(*) FROM orders WHERE userId = ?";
+    private final static String PERSIST_ORDER = "INSERT INTO orders (userId, date, price) VALUES (?, ?, ?)";
+    private final static String PERSIST_ORDER_PRODUCTS = "INSERT INTO orders_products (orderId, productId) VALUES " +
+            "(?, ?)";
+    private final static String UPDATE_USER_BALANCE = "UPDATE users SET balance = ? WHERE id = ?";
 
     public void persist(User user) throws SQLException, ConnectionException {
         Connection connection = pool.getConnection();
@@ -100,6 +109,22 @@ public class UserRepository {
         }
 
         return user;
+    }
+
+    public BigDecimal getUserBalance(int userId) throws ConnectionException, SQLException {
+        BigDecimal result = BigDecimal.valueOf(-1);
+        Connection connection = pool.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(GET_USER_BALANCE)) {
+            statement.setInt(1, userId);
+            ResultSet set = statement.executeQuery();
+            if (set.next()) {
+                result = set.getBigDecimal(1);
+            }
+            set.close();
+            return result;
+        } finally {
+            pool.returnConnection(connection);
+        }
     }
 
     public Optional<User> getByCredentials(String email, String password) throws ConnectionException, SQLException {
@@ -277,5 +302,60 @@ public class UserRepository {
         } finally {
             pool.returnConnection(connection);
         }
+    }
+
+    public Order makeOrder(Cart cart, int userId) throws ConnectionException, SQLException {
+        Order order = Order.
+                builder().
+                userId(userId).
+                price(cart.getPrice()).
+                products(new ArrayList<>(cart.getProducts())).
+                build();
+        Connection connection = pool.getConnection();
+        int orderId = 0;
+        try (PreparedStatement statement = connection.prepareStatement(PERSIST_ORDER, Statement.RETURN_GENERATED_KEYS)) {
+            connection.setAutoCommit(false);
+            statement.setInt(1, userId);
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            order.setDate(now.toLocalDateTime().toLocalDate());
+            statement.setTimestamp(2, now);
+            statement.setBigDecimal(3, cart.getPrice());
+            statement.execute();
+            ResultSet autoGenerated = statement.getGeneratedKeys();
+            if (autoGenerated.next()) {
+                orderId = autoGenerated.getInt(1);
+                order.setId(orderId);
+            }
+        } catch (SQLException e) {
+            pool.returnConnection(connection);
+            connection.setAutoCommit(true);
+            throw new SQLException(e.getMessage());
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(PERSIST_ORDER_PRODUCTS)) {
+            for (Product product : cart.getProducts()) {
+                statement.setInt(1, orderId);
+                statement.setInt(2, product.getId());
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            pool.returnConnection(connection);
+            connection.setAutoCommit(true);
+            throw new SQLException(e.getMessage());
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(UPDATE_USER_BALANCE)){
+            statement.setBigDecimal(1, getUserBalance(userId).subtract(cart.getPrice()));
+            statement.setInt(2, userId);
+            statement.execute();
+        } catch (SQLException e) {
+            pool.returnConnection(connection);
+            connection.setAutoCommit(true);
+            throw new SQLException(e.getMessage());
+        }
+        connection.commit();
+        pool.returnConnection(connection);
+        connection.setAutoCommit(true);
+        return order;
     }
 }

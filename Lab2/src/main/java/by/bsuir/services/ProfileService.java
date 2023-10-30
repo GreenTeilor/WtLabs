@@ -46,13 +46,16 @@ public class ProfileService {
         }
     }
 
-    public void paging(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet) throws DbException, ServiceException {
+    public void paging(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet)
+            throws DbException, ServiceException {
         try {
+            HttpSession session = request.getSession();
+            User user = (User) session.getAttribute(SessionAttributesNames.USER);
             RequestDispatcher requestDispatcher = servlet.getServletContext().getRequestDispatcher(PagesPaths.PREFIX +
                     PagesPaths.PROFILE_PAGE + PagesPaths.POSTFIX);
-            request.setAttribute(RequestAttributesNames.ORDERS, userRepository.getOrders(((User) request.getSession().
-                    getAttribute(SessionAttributesNames.USER)).getId(), PagingUtils.updatePagingParams(request,
-                    SessionAttributesNames.ORDER_PAGING_PARAMS)));
+            request.setAttribute(RequestAttributesNames.ORDERS, userRepository.getOrders(user.getId(),
+                    PagingUtils.updatePagingParams(request, SessionAttributesNames.ORDER_PAGING_PARAMS)));
+            request.setAttribute(RequestAttributesNames.STATISTICS, userRepository.getStatistics(user.getId()));
             requestDispatcher.forward(request, response);
         } catch (SQLException | ConnectionException e) {
             throw new DbException(ExceptionMessages.DB_EXCEPTION);
@@ -61,9 +64,8 @@ public class ProfileService {
         }
     }
 
-    public void addAddressAndPhoneNumber(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet) throws DbException, ServiceException {
-        RequestDispatcher requestDispatcher = servlet.getServletContext().getRequestDispatcher(PagesPaths.PREFIX +
-                PagesPaths.PROFILE_PAGE + PagesPaths.POSTFIX);
+    public void addAddressAndPhoneNumber(HttpServletRequest request, HttpServletResponse response)
+            throws DbException, ServiceException {
         try {
             if (ValidatorUtils.validateAddressAndPhoneNumber(request)) {
                 HttpSession session = request.getSession();

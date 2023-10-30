@@ -1,7 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c' %>
-<%@ page import="by.bsuir.domain.Cart" %>
-<%@ page import="by.bsuir.constants.SessionAttributesNames" %>
 
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -23,22 +21,16 @@
                         <a class="nav-link" href="<c:url value="/home"/>">&#127968 Главная</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<c:url value="/about"/>">&#10067 Об авторе</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="<c:url value="/profile"/>">&#128188 Профиль</a>
                     </li>
-                    <%
-                        Cart cart = (Cart) request.getSession().getAttribute(SessionAttributesNames.CART);
-                        String productsInCart = (cart != null && cart.size() != 0) ? String.valueOf(cart.size()) : "";
-                    %>
                     <li class="nav-item">
-                        <a class="nav-link" href="<c:url value="/cart"/>">&#128722 Корзина<sup
-                                style="color: red; font-weight: bold; font-size: 1rem;"><%=productsInCart%>
-                        </sup></a>
-                    </li>
-                    <li>
-                        <a class="nav-link" href="<c:url value="/search"/>">&#128269 Поиск</a>
+                        <a class="nav-link" href="<c:url value="/cart"/>">&#128722 Корзина
+                            <c:if test="${sessionScope.cart.size() != 0}">
+                                <sup style="color: red; font-weight: bold; font-size: 1rem;">
+                                        ${sessionScope.cart.size()}
+                                </sup>
+                            </c:if>
+                        </a>
                     </li>
                     <c:if test="${sessionScope.user != null && sessionScope.user.hasRole(\"ROLE_ADMIN\")}">
                         <li>
@@ -56,24 +48,25 @@
                 </ul>
             </div>
 
-            <sec:authorize access="!isAuthenticated()">
-                <div class="d-flex align-items-center">
-                    <a href="<c:url value="/login"/>" type="button" class="btn btn-primary px-3 me-2">
-                        Логин
-                    </a>
-                    <a href="<c:url value="/registration"/>" type="button" class="btn btn-primary me-3">
-                        Регистрация
-                    </a>
-                </div>
-            </sec:authorize>
-            <sec:authorize access="isAuthenticated()">
-                <div class="d-flex align-items-center">
-                    <a href="<c:url value="/logout"/>" type="button" class="btn btn-primary me-3">
-                        Выйти
-                    </a>
-                </div>
-            </sec:authorize>
-
+            <c:choose>
+                <c:when test="${sessionScope.user == null}">
+                    <div class="d-flex align-items-center">
+                        <a href="<c:url value="/login"/>" type="button" class="btn btn-primary px-3 me-2">
+                            Логин
+                        </a>
+                        <a href="<c:url value="/registration"/>" type="button" class="btn btn-primary me-3">
+                            Регистрация
+                        </a>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="d-flex align-items-center">
+                        <a href="<c:url value="/home/logout"/>" type="button" class="btn btn-primary me-3">
+                            Выйти
+                        </a>
+                    </div>
+                </c:otherwise>
+            </c:choose>
         </div>
     </nav>
 </header>

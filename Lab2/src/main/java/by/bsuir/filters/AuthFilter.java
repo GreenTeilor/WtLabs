@@ -30,7 +30,8 @@ public class AuthFilter implements Filter {
         String contextPath = request.getContextPath();
         if (
                 auth(List.of("/profile/**", "/profile"), URI, request, Collections.emptyList()) &&
-                auth(List.of("/admin/**", "/admin"), URI, request, List.of("ROLE_ADMIN"))
+                auth(List.of("/admin/**", "/admin"), URI, request, List.of("ROLE_ADMIN")) &&
+                auth(List.of("/cart/makeOrder"), URI, request, Collections.emptyList())
         ) {
             chain.doFilter(request, response);
         } else {

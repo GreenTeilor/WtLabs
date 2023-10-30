@@ -16,7 +16,8 @@ public class HomeServlet extends MappingServlet {
     public HomeServlet() {
         this.urlMappingRegistrar.
                 get("/", this::open).
-                get("/paging", this::paging);
+                get("/paging", this::paging).
+                get("/logout", this::logout);
     }
 
     @SneakyThrows
@@ -27,5 +28,10 @@ public class HomeServlet extends MappingServlet {
     @SneakyThrows
     private void paging(HttpServletRequest request, HttpServletResponse response, ServletUrl servletUrl) {
         homeService.paging(request, response, this);
+    }
+
+    @SneakyThrows
+    private void logout(HttpServletRequest request, HttpServletResponse response, ServletUrl servletUrl) {
+        homeService.logout(request, response);
     }
 }
