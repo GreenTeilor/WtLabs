@@ -23,6 +23,17 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository = new ProductRepository();
 
+    /**
+     * Returns the product page by product id.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @param id product id
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void getProduct(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet,
                                     String id) throws DbException, ServiceException {
         try {

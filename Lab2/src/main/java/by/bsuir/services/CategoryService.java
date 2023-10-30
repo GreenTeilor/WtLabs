@@ -23,6 +23,17 @@ import java.sql.SQLException;
 public class CategoryService {
     private final ProductRepository productRepository = new ProductRepository();
 
+    /**
+     * Returns the category page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @param category an {@link HttpServletResponse} category name
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void getCategoryProducts(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet,
                                     String category) throws DbException, ServiceException {
         try {
@@ -41,6 +52,17 @@ public class CategoryService {
         }
     }
 
+    /**
+     * Allows paging on category page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @param category an {@link HttpServletResponse} category name
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void paging(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet, String category)
             throws DbException, ServiceException {
         try {

@@ -29,6 +29,15 @@ import java.time.LocalDate;
 public class RegistrationService {
     private final UserRepository userRepository = new UserRepository();
 
+    /**
+     * Returns the registration page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     */
     public void getRegistrationPage(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet) throws ServiceException {
         try {
             RequestDispatcher requestDispatcher = servlet.getServletContext().getRequestDispatcher(PagesPaths.PREFIX +
@@ -39,6 +48,16 @@ public class RegistrationService {
         }
     }
 
+    /**
+     * Allows to register user.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void registerUser(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet) throws ServiceException, DbException {
         RequestDispatcher requestDispatcher = servlet.getServletContext().getRequestDispatcher(PagesPaths.PREFIX +
                 PagesPaths.REGISTRATION_PAGE + PagesPaths.POSTFIX);

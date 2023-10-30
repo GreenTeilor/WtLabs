@@ -23,6 +23,16 @@ import java.sql.SQLException;
 public class HomeService {
     private final CategoryRepository categoryRepository = new CategoryRepository();
 
+    /**
+     * Returns the home page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void getHomePage(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet)
             throws DbException, ServiceException {
         try {
@@ -39,6 +49,16 @@ public class HomeService {
         }
     }
 
+    /**
+     * Allows paging on home page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void paging(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet)
             throws DbException, ServiceException {
         try {
@@ -54,6 +74,14 @@ public class HomeService {
         }
     }
 
+    /**
+     * Log out user.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @throws ServiceException if occurs dispatch error
+     */
     public void logout(HttpServletRequest request, HttpServletResponse response)
             throws ServiceException {
         try {

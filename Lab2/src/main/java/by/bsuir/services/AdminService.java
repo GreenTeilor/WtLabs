@@ -32,6 +32,16 @@ public class AdminService {
     private final CategoryRepository categoryRepository = new CategoryRepository();
     private final ProductRepository productRepository = new ProductRepository();
 
+    /**
+     * Returns the admin page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} Provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException      if occurs db error
+     */
     public void getAdminPage(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet)
             throws ServiceException, DbException {
 
@@ -48,6 +58,15 @@ public class AdminService {
         }
     }
 
+    /**
+     * Allows to add new category.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException      if occurs db error
+     */
     public void addCategory(HttpServletRequest request, HttpServletResponse response) throws ServiceException, DbException {
         try {
             String name = request.getParameter(RequestParams.CATEGORY_NAME);
@@ -72,6 +91,15 @@ public class AdminService {
         }
     }
 
+    /**
+     * Allows to add new product.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException      if occurs db error
+     */
     public void addProduct(HttpServletRequest request, HttpServletResponse response) throws ServiceException, DbException {
         try {
             String name = request.getParameter(RequestParams.PRODUCT_NAME);

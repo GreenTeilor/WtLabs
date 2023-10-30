@@ -28,6 +28,16 @@ import java.sql.SQLException;
 public class ProfileService {
     private final UserRepository userRepository = new UserRepository();
 
+    /**
+     * Returns the user profile page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void getUserInfo(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet) throws DbException, ServiceException {
         try {
             RequestDispatcher requestDispatcher = servlet.getServletContext().getRequestDispatcher(PagesPaths.PREFIX +
@@ -46,6 +56,16 @@ public class ProfileService {
         }
     }
 
+    /**
+     * Allows paging orders on profile page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void paging(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet)
             throws DbException, ServiceException {
         try {
@@ -64,6 +84,15 @@ public class ProfileService {
         }
     }
 
+    /**
+     * Allows to add address and phoneNumber for user.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void addAddressAndPhoneNumber(HttpServletRequest request, HttpServletResponse response)
             throws DbException, ServiceException {
         try {

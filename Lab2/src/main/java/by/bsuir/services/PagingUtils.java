@@ -10,6 +10,13 @@ public class PagingUtils {
 
     }
 
+    /**
+     * Returns the home page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param sessionAttributeName name of attribute, responsible for pagination on certain page
+     */
     public static PagingParams updatePagingParams(HttpServletRequest request, String sessionAttributeName) {
         HttpSession session = request.getSession();
         PagingParams params = (PagingParams) session.getAttribute(sessionAttributeName);

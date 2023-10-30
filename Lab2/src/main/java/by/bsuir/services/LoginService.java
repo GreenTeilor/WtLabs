@@ -25,6 +25,15 @@ import java.util.Optional;
 public class LoginService {
     private final UserRepository userRepository = new UserRepository();
 
+    /**
+     * Returns the login page.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     */
     public void getLoginPage(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet)
             throws ServiceException {
         try {
@@ -36,6 +45,16 @@ public class LoginService {
         }
     }
 
+    /**
+     * Login user.
+     * <p>
+     *
+     * @param request  an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+     * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+     * @param servlet  an {@link HttpServlet} provides an abstract class to be subclassed to create an HTTP servlet suitable for a Web site
+     * @throws ServiceException if occurs dispatch error
+     * @throws DbException  if occurs db error
+     */
     public void login(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet)
             throws DbException, ServiceException {
         try {
