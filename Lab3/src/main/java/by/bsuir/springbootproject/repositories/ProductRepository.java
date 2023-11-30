@@ -1,13 +1,23 @@
 package by.bsuir.springbootproject.repositories;
 
+import by.bsuir.springbootproject.entities.PagingParams;
 import by.bsuir.springbootproject.entities.Product;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import by.bsuir.springbootproject.entities.SearchCriteria;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface ProductRepository extends JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
-    List<Product> findAllByCategory_Name(String category, Pageable paging);
-    List<Product> findAllByCategory_Name(String category);
+public interface ProductRepository {
+    Product create(Product entity);
+
+    List<Product> read(PagingParams params);
+
+    Product update(Product entity);
+
+    void delete(int id);
+    List<Product> getCategoryProducts(String category, PagingParams params);
+
+    Optional<Product> getProductById(int id);
+
+    List<Product> findProducts(SearchCriteria criteria);
 }

@@ -26,9 +26,6 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.getUserByEmail(email);
     }
 
     public static ModelAndView makeModelAndView(User user, Statistics statistics, List<Order> orders) {
@@ -81,8 +78,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ModelAndView getUserInfo(User user, PagingParams params) {
-        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("date").descending());
-        List<Order> orders = orderRepository.findAllByUserId(user.getId(), paging);
+        List<Order> orders = orderRepository.findAllByUserId(user.getId(), params);
         Statistics statistics = getUserStatistics(user.getId());
         return makeModelAndView(user, statistics, orders);
     }
@@ -91,12 +87,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public ModelAndView addAddressAndPhoneNumberInfo(String address, String phoneNumber, User user, BindingResult bindingResult, PagingParams params) {
         Statistics statistics = getUserStatistics(user.getId());
-        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("date").descending());
-        List<Order> orders = orderRepository.findAllByUserId(user.getId(), paging);
+        List<Order> orders = orderRepository.findAllByUserId(user.getId(), params);
         if (!bindingResult.hasFieldErrors(RequestAttributesNames.ADDRESS) && !bindingResult.hasFieldErrors(RequestAttributesNames.PHONE_NUMBER)) {
             user.setAddress(address);
             user.setPhoneNumber(phoneNumber);
-            userRepository.save(user);
+            userRepository.update(user);
         }
         ModelAndView modelAndView = makeModelAndView(user, statistics, orders);
         ErrorPopulatorUtils.populateError(RequestAttributesNames.ADDRESS, modelAndView, bindingResult);
@@ -117,7 +112,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public ModelAndView makeOrder(User user, Cart cart) throws InsufficientFundsException, NoProductsInOrderException, NoResourceFoundException {
         BigDecimal orderPrice = cart.getPrice();
-        if (userRepository.findById(user.getId()).map(User::getBalance).
+        if (userRepository.getUserById(user.getId()).map(User::getBalance).
                 orElseThrow(() -> new NoResourceFoundException("No user with id " + user.getId() + " found")).
                 compareTo(orderPrice) < 0) {
             throw new InsufficientFundsException("Недостаточно средств");
@@ -128,7 +123,7 @@ public class UserServiceImpl implements UserService {
         Order order = Order.builder().userId(user.getId()).date(LocalDate.now()).products(new ArrayList<>(cart.getProducts())).price(orderPrice).build();
         user.getOrders().add(order);
         user.setBalance(user.getBalance().subtract(orderPrice));
-        userRepository.save(user);
+        userRepository.update(user);
         cart.clear();
         ModelAndView modelAndView = new ModelAndView(PagesPaths.CART_PAGE);
         modelAndView.addObject(RequestAttributesNames.STATUS, "Заказ оформлен!");
@@ -145,7 +140,7 @@ public class UserServiceImpl implements UserService {
                     .build();
             response.setContentType("text/csv");
             response.setHeader("Content-Disposition", "attachment; filename=" + "orders_products.csv");
-            List<Order> orders = orderRepository.findAllByUserId(userId);
+            List<Order> orders = orderRepository.findAllByUserId(userId, new PagingParams(1, 1000_000_000));
             List<OrderProductCsv> productCsvs = ordersProductsConverter.fromOrders(orders);
             beanToCsv.write(productCsvs);
         }
@@ -165,7 +160,7 @@ public class UserServiceImpl implements UserService {
             csvToBean.forEach(orderProductCsvs::add);
             List<Order> orders = ordersProductsConverter.toOrders(orderProductCsvs);
             orders.forEach(user.getOrders()::add);
-            userRepository.save(user);
+            userRepository.update(user);
             return modelAndView;
         }
     }
@@ -180,7 +175,7 @@ public class UserServiceImpl implements UserService {
         if (getUserByEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("Такой пользователь уже существует");
         }
-        userRepository.save(user);
+        userRepository.create(user);
         modelAndView.addObject(RequestAttributesNames.STATUS, "Успешно");
         modelAndView.addObject(RequestAttributesNames.COLOR, "green");
         return modelAndView;
@@ -189,22 +184,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public ModelAndView read(PagingParams params) {
         ModelAndView modelAndView = new ModelAndView(PagesPaths.HOME_PAGE);
-        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
-        modelAndView.addObject(RequestAttributesNames.USER, userRepository.findAll(paging).getContent());
+        modelAndView.addObject(RequestAttributesNames.USER, userRepository.read(params));
         return modelAndView;
     }
 
     @Override
     @Transactional
     public User update(User user) throws NoResourceFoundException {
-        userRepository.findById(user.getId()).orElseThrow(() ->
+        userRepository.getUserById(user.getId()).orElseThrow(() ->
                 new NoResourceFoundException("No user with id " + user.getId() + " found"));
-        return userRepository.save(user);
+        return userRepository.update(user);
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        userRepository.deleteById(id);
+        userRepository.delete(id);
     }
 }

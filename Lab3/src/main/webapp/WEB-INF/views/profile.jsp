@@ -116,7 +116,7 @@
                         <div class="col-md-6 col-lg-3">
                             <div class="count-data text-center">
                                 <h6 class="count h2" data-to="190"
-                                    data-speed="190">${statistics.getFavoriteGenre()}</h6>
+                                    data-speed="190">${statistics.getFavoriteCategory()}</h6>
                                 <p class="m-0px font-w-600">Любимый жанр</p>
                             </div>
                         </div>
@@ -190,11 +190,11 @@
                                              href="<c:url value="/profile/paging?pageNumber=${params.getPageNumber() - 1}"/>"><<</a>
                     </li>
                     <li class="page-item"><a class="page-link"
-                                             href="<c:url value="/profile/paging?pageNumber=0"/>">1</a></li>
+                                             href="<c:url value="/profile/paging?pageNumber=1"/>">1</a></li>
                     <li class="page-item"><a class="page-link"
-                                             href="<c:url value="/profile/paging?pageNumber=1"/>">2</a></li>
+                                             href="<c:url value="/profile/paging?pageNumber=2"/>">2</a></li>
                     <li class="page-item"><a class="page-link"
-                                             href="<c:url value="/profile/paging?pageNumber=2"/>">3</a></li>
+                                             href="<c:url value="/profile/paging?pageNumber=3"/>">3</a></li>
                     <li class="page-item"><a class="page-link"
                                              href="<c:url value="/profile/paging?pageNumber=${params.getPageNumber() + 1}"/>">>></a>
                     </li>

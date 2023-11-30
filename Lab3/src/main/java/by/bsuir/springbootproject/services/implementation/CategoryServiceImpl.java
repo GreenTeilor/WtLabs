@@ -17,9 +17,6 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
                     .build();
             response.setContentType("text/csv");
             response.setHeader("Content-Disposition", "attachment; filename=" + "categories.csv");
-            List<Category> categories = categoryRepository.findAll();
+            List<Category> categories = categoryRepository.read(new PagingParams(1, 1000_000_000));
             categories.forEach(c -> c.setId(null));
             beanToCsv.write(categories);
         }
@@ -67,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
                     .build();
             List<Category> categories = new ArrayList<>();
             csvToBean.forEach(categories::add);
-            categoryRepository.saveAll(categories);
+            categories.forEach(categoryRepository::create);
             return modelAndView;
         }
     }
@@ -75,7 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public ModelAndView create(Category category) {
-        categoryRepository.save(category);
+        categoryRepository.create(category);
         return new ModelAndView(PagesPaths.CATEGORY_PAGE);
     }
 
@@ -85,8 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
             params.setPageNumber(Values.DEFAULT_START_PAGE);
         }
         ModelAndView modelAndView = new ModelAndView(PagesPaths.HOME_PAGE);
-        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
-        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.findAll(paging).getContent());
+        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.read(params));
         return modelAndView;
     }
 
@@ -95,12 +91,12 @@ public class CategoryServiceImpl implements CategoryService {
     public Category update(Category category) throws NoResourceFoundException {
         categoryRepository.findById(category.getId()).orElseThrow(() ->
                 new NoResourceFoundException("No category with id " + category.getId() + " found"));
-        return categoryRepository.save(category);
+        return categoryRepository.create(category);
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        categoryRepository.deleteById(id);
+        categoryRepository.delete(id);
     }
 }

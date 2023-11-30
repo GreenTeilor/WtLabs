@@ -1,12 +1,18 @@
 package by.bsuir.springbootproject.repositories;
 
 import by.bsuir.springbootproject.entities.Order;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import by.bsuir.springbootproject.entities.PagingParams;
 
 import java.util.List;
 
-public interface OrderRepository extends JpaRepository<Order, Integer> {
-    List<Order> findAllByUserId(Integer id, Pageable paging);
-    List<Order> findAllByUserId(Integer id);
+public interface OrderRepository {
+    Order create(Order entity);
+
+    List<Order> read();
+
+    Order update(Order entity);
+
+    void delete(int id);
+
+    List<Order> findAllByUserId(int userId, PagingParams params);
 }

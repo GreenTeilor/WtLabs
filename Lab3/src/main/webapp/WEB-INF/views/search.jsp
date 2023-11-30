@@ -94,13 +94,13 @@
                                                              href="<c:url value="/search/paging?pageNumber=${params.getPageNumber() - 1}"/>"><<</a>
                                     </li>
                                     <li class="page-item"><a class="page-link"
-                                                             href="<c:url value="/search/paging?pageNumber=0"/>">1</a>
+                                                             href="<c:url value="/search/paging?pageNumber=1"/>">1</a>
                                     </li>
                                     <li class="page-item"><a class="page-link"
-                                                             href="<c:url value="/search/paging?pageNumber=1"/>">2</a>
+                                                             href="<c:url value="/search/paging?pageNumber=2"/>">2</a>
                                     </li>
                                     <li class="page-item"><a class="page-link"
-                                                             href="<c:url value="/search/paging?pageNumber=2"/>">3</a>
+                                                             href="<c:url value="/search/paging?pageNumber=3"/>">3</a>
                                     </li>
                                     <li class="page-item"><a class="page-link"
                                                              href="<c:url value="/search/paging?pageNumber=${params.getPageNumber() + 1}"/>">>></a>
