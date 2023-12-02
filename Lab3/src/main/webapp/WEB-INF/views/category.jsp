@@ -17,24 +17,6 @@
 <div class="wrapper">
     <jsp:include page="header.jsp"/>
     <div class="main">
-        <sec:authorize access="hasRole('ADMIN')">
-            <div class="files">
-                <form method="POST" action="<c:url value="/categories/csv/exportProducts"/>">
-                    <input id="categoryNameSave" name="categoryName" value="${categoryName}" hidden>
-                    <button type="submit" class="btn btn-primary">Экспорт продуктов</button>
-                </form>
-                <form method="POST" action="<c:url value="/categories/csv/importProducts"/>"
-                      enctype="multipart/form-data"
-                      class="file-import">
-                    <input id="categoryNameLoad" name="categoryName" value="${categoryName}" hidden>
-                    <label class="label">
-                        <i>&#128204</i>
-                        <input id="file" name="file" type="file" class="title" accept=".csv">
-                    </label>
-                    <button type="submit" class="btn btn-primary">Импорт продуктов</button>
-                </form>
-            </div>
-        </sec:authorize>
         <div class="container-fluid products">
             <div class="row">
                 <c:forEach items="${categoryProducts}" var="product">

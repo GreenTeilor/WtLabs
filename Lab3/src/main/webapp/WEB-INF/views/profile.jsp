@@ -128,20 +128,6 @@
             <div class="history">
                 <div class="count-data text-center">
                     <h6 class="count h2" data-to="500" data-speed="500">История заказов</h6>
-                    <sec:authorize access="hasRole('ADMIN')">
-                        <form method="POST" action="<c:url value="/profile/csv/exportOrders"/>">
-                            <button type="submit" class="btn btn-primary">Экспорт заказов</button>
-                        </form>
-                        <form method="POST" action="<c:url value="/profile/csv/importOrders"/>"
-                              enctype="multipart/form-data"
-                              class="file-import">
-                            <label class="label">
-                                <i>&#128204</i>
-                                <input id="file" name="file" type="file" class="title" accept=".csv">
-                            </label>
-                            <button type="submit" class="btn btn-primary">Импорт заказов</button>
-                        </form>
-                    </sec:authorize>
                 </div>
             </div>
 

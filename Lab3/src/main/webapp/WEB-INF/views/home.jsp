@@ -19,21 +19,6 @@
         <c:if test="${user != null}">
             <jsp:include page="info.jsp"/>
         </c:if>
-        <sec:authorize access="hasRole('ADMIN')">
-            <div class="files">
-                <form method="POST" action="<c:url value="/home/csv/exportCategories"/>">
-                    <button type="submit" class="btn btn-primary">Экспорт категорий</button>
-                </form>
-                <form method="POST" action="<c:url value="/home/csv/importCategories"/>" enctype="multipart/form-data"
-                      class="file-import">
-                    <label class="label">
-                        <i>&#128204</i>
-                        <input id="file" name="file" type="file" class="title" accept=".csv">
-                    </label>
-                    <button type="submit" class="btn btn-primary">Импорт категорий</button>
-                </form>
-            </div>
-        </sec:authorize>
         <div class="container-fluid categories">
             <div class="row">
                 <c:forEach items="${categories}" var="item">

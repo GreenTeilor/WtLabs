@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,9 @@ import java.util.Optional;
 public class ProductRepositoryImpl implements ProductRepository {
     private final static String GET_CATEGORY_PRODUCTS_QUERY = "select p from Product p where p.category.name=:category";
     private final static String GET_PRODUCTS_QUERY = "select p from Product p";
-    private final static String SEARCH_PRODUCTS_QUERY = "select p from Product p where p.name like :name or p.description like :description order by p.name asc";
+    private final static String SEARCH_PRODUCTS_QUERY = "select p from Product p where (p.name like :name " +
+            "or p.description like :description) AND p.category.name like :category AND p.price>=:fromPrice AND p.price<=:toPrice " +
+            "order by p.name asc";
 
     @PersistenceContext
     private final EntityManager manager;
@@ -47,6 +50,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         String searchPattern = "%" + criteria.getKeyWords().trim() + "%";
         query.setParameter("name", searchPattern);
         query.setParameter("description", searchPattern);
+        query.setParameter("category", criteria.getSearchCategory() != null ? criteria.getSearchCategory() : "%%");
+        query.setParameter("fromPrice", criteria.getPriceFrom() != null ? criteria.getPriceFrom() : BigDecimal.valueOf(-2000_000_000));
+        query.setParameter("toPrice", criteria.getPriceTo() != null ? criteria.getPriceTo() : BigDecimal.valueOf(2000_000_000));
         query.setFirstResult((criteria.getPageNumber() - 1) * criteria.getPageSize());
         query.setMaxResults(criteria.getPageSize());
         return query.getResultList();

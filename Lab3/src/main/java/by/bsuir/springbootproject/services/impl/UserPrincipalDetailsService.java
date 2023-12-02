@@ -1,4 +1,4 @@
-package by.bsuir.springbootproject.services.implementation;
+package by.bsuir.springbootproject.services.impl;
 
 import by.bsuir.springbootproject.entities.User;
 import by.bsuir.springbootproject.principal.UserPrincipal;

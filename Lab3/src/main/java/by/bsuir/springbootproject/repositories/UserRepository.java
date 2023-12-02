@@ -2,7 +2,6 @@ package by.bsuir.springbootproject.repositories;
 
 import by.bsuir.springbootproject.entities.PagingParams;
 import by.bsuir.springbootproject.entities.User;
-import by.bsuir.springbootproject.exceptions.UserAlreadyExistsException;
 
 import java.util.List;
 import java.util.Optional;
