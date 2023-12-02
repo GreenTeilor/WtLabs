@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-<%@ page import="by.bsuir.springbootproject.constants.SessionAttributesNames" %>
-<%@ page import="by.bsuir.springbootproject.entities.Cart" %>
-<%@ page import="by.bsuir.springbootproject.constants.SessionAttributesNames" %>
+<%@ page import="by.bsuir.springmvcproject.constants.SessionAttributesNames" %>
+<%@ page import="by.bsuir.springmvcproject.entities.Cart" %>
+<%@ page import="by.bsuir.springmvcproject.constants.SessionAttributesNames" %>
 
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">

@@ -186,7 +186,7 @@
                     <sources>
                         <source>src/main/resources/students.xsd</source>
                     </sources>
-                    <outputDirectory>src/main/java/by/bsuir/springbootproject/soap</outputDirectory>
+                    <outputDirectory>src/main/java/by/bsuir/springmvcproject/soap</outputDirectory>
                     <clearOutputDir>false</clearOutputDir>
                 </configuration>
             </plugin>
