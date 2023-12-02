@@ -14,8 +14,11 @@ import by.bsuir.springmvcproject.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -73,6 +76,17 @@ public class ProductServiceImpl implements ProductService {
         searchCriteria.setPriceTo(priceTo);
         searchCriteria.setPageNumber(Values.DEFAULT_START_PAGE);
         return findProducts(searchCriteria);
+    }
+
+    @Override
+    @Transactional
+    public ModelAndView saveProduct(Product product, String category, MultipartFile image) throws IOException {
+        String fileName = image.getOriginalFilename();
+        image.transferTo(new File("src\\main\\webapp\\assets\\" + fileName));
+        product.setCategory(categoryRepository.findByName(category).orElse(null));
+        product.setImagePath("assets/" + fileName);
+        productRepository.create(product);
+        return new ModelAndView();
     }
 
     @Override

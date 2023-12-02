@@ -11,13 +11,29 @@ import by.bsuir.springmvcproject.services.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+
+    @Override
+    @Transactional
+    public ModelAndView saveCategory(Category category, MultipartFile image) throws IOException {
+        String fileName = image.getOriginalFilename();
+        image.transferTo(new File("src\\main\\webapp\\assets\\" + fileName));
+        category.setImagePath("assets/" + fileName);
+        category.setProducts(new ArrayList<>());
+        categoryRepository.create(category);
+        return new ModelAndView();
+    }
 
     @Override
     @Transactional

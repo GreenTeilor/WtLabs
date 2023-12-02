@@ -5,6 +5,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,7 @@ public class Product extends BaseEntity{
     @Size(min = 1, max = 50, message = "Пустое или длиннее 50 символов")
     private String imagePath;
 
-    @Size(min = 1, max = 50, message = "Пустое или длиннее 50 символов")
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "category", referencedColumnName = "name")
     private Category category;
