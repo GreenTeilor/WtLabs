@@ -1,17 +1,22 @@
-package by.bsuir.springmvcproject.services.impl;
+package by.bsuir.springbootproject.services.implementation;
 
-import by.bsuir.springmvcproject.constants.PagesPaths;
-import by.bsuir.springmvcproject.constants.RequestAttributesNames;
-import by.bsuir.springmvcproject.constants.Values;
-import by.bsuir.springmvcproject.entities.Cart;
-import by.bsuir.springmvcproject.entities.PagingParams;
-import by.bsuir.springmvcproject.entities.Product;
-import by.bsuir.springmvcproject.entities.SearchCriteria;
-import by.bsuir.springmvcproject.exceptions.NoResourceFoundException;
-import by.bsuir.springmvcproject.repositories.CategoryRepository;
-import by.bsuir.springmvcproject.repositories.ProductRepository;
-import by.bsuir.springmvcproject.services.ProductService;
+import by.bsuir.springbootproject.constants.PagesPaths;
+import by.bsuir.springbootproject.constants.RequestAttributesNames;
+import by.bsuir.springbootproject.constants.Values;
+import by.bsuir.springbootproject.entities.Cart;
+import by.bsuir.springbootproject.entities.PagingParams;
+import by.bsuir.springbootproject.entities.Product;
+import by.bsuir.springbootproject.entities.SearchCriteria;
+import by.bsuir.springbootproject.exceptions.NoResourceFoundException;
+import by.bsuir.springbootproject.repositories.CategoryRepository;
+import by.bsuir.springbootproject.repositories.ProductRepository;
+import by.bsuir.springbootproject.repositories.ProductSearchSpecification;
+import by.bsuir.springbootproject.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +37,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ModelAndView getCategoryProducts(String category, PagingParams params) {
         ModelAndView modelAndView = new ModelAndView(PagesPaths.CATEGORY_PAGE);
-        List<Product> products = productRepository.getCategoryProducts(category, params);
+        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
+        List<Product> products = productRepository.findAllByCategory_Name(category, paging);
         modelAndView.addObject(RequestAttributesNames.CATEGORY_PRODUCTS, products);
         modelAndView.addObject(RequestAttributesNames.CATEGORY_NAME, category);
         return modelAndView;
@@ -41,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ModelAndView getProductById(int id) throws NoResourceFoundException {
         ModelAndView modelAndView = new ModelAndView(PagesPaths.PRODUCT_PAGE);
-        Product product = productRepository.getProductById(id).
+        Product product = productRepository.findById(id).
                 orElseThrow(() -> new NoResourceFoundException("Product with id " + id + " not found"));
         modelAndView.addObject(product.getName());
         modelAndView.addObject(product);
@@ -54,15 +60,17 @@ public class ProductServiceImpl implements ProductService {
         if (searchCriteria.getPageNumber() < 0) {
             searchCriteria.setPageNumber(Values.DEFAULT_START_PAGE);
         }
-        modelAndView.addObject(RequestAttributesNames.PRODUCTS, productRepository.findProducts(searchCriteria));
-        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.read(new PagingParams(1, 1000_000_000)));
+        Pageable paging = PageRequest.of(searchCriteria.getPageNumber(), searchCriteria.getPageSize(), Sort.by("name").ascending());
+        Specification<Product> specification = new ProductSearchSpecification(searchCriteria);
+        modelAndView.addObject(RequestAttributesNames.PRODUCTS, productRepository.findAll(specification, paging).getContent());
+        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.findAll());
         return modelAndView;
     }
 
     @Override
     public ModelAndView addProductToCart(int id, Cart cart) throws NoResourceFoundException {
         ModelAndView modelAndView = new ModelAndView("redirect:/products/" + id);
-        Product product = productRepository.getProductById(id).
+        Product product = productRepository.findById(id).
                 orElseThrow(() -> new NoResourceFoundException("No product with id " + id + " found"));
         cart.addProduct(product);
         return modelAndView;
@@ -85,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
         image.transferTo(new File("src\\main\\webapp\\assets\\" + fileName));
         product.setCategory(categoryRepository.findByName(category).orElse(null));
         product.setImagePath("assets/" + fileName);
-        productRepository.create(product);
+        productRepository.save(product);
         return new ModelAndView("redirect:/admin");
     }
 
@@ -93,29 +101,30 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ModelAndView create(Product product) {
         ModelAndView modelAndView = new ModelAndView(PagesPaths.PRODUCT_PAGE);
-        productRepository.create(product);
+        productRepository.save(product);
         return modelAndView;
     }
 
     @Override
     public ModelAndView read(PagingParams params) {
         ModelAndView modelAndView = new ModelAndView(PagesPaths.SEARCH_PAGE);
-        modelAndView.addObject(RequestAttributesNames.PRODUCTS, productRepository.read(params));
-        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.read(new PagingParams(1, 1000_000_000)));
+        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
+        modelAndView.addObject(RequestAttributesNames.PRODUCTS, productRepository.findAll(paging).getContent());
+        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.findAll());
         return modelAndView;
     }
 
     @Override
     @Transactional
     public Product update(Product product) throws NoResourceFoundException {
-        productRepository.getProductById(product.getId()).orElseThrow(() ->
+        productRepository.findById(product.getId()).orElseThrow(() ->
                 new NoResourceFoundException("No product with id " + product.getId() + " found"));
-        return productRepository.create(product);
+        return productRepository.save(product);
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        productRepository.delete(id);
+        productRepository.deleteById(id);
     }
 }

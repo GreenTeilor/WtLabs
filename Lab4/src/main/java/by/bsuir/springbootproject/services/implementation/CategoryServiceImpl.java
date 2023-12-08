@@ -1,14 +1,17 @@
-package by.bsuir.springmvcproject.services.impl;
+package by.bsuir.springbootproject.services.implementation;
 
-import by.bsuir.springmvcproject.constants.PagesPaths;
-import by.bsuir.springmvcproject.constants.RequestAttributesNames;
-import by.bsuir.springmvcproject.constants.Values;
-import by.bsuir.springmvcproject.entities.Category;
-import by.bsuir.springmvcproject.entities.PagingParams;
-import by.bsuir.springmvcproject.exceptions.NoResourceFoundException;
-import by.bsuir.springmvcproject.repositories.CategoryRepository;
-import by.bsuir.springmvcproject.services.CategoryService;
+import by.bsuir.springbootproject.constants.PagesPaths;
+import by.bsuir.springbootproject.constants.RequestAttributesNames;
+import by.bsuir.springbootproject.constants.Values;
+import by.bsuir.springbootproject.entities.Category;
+import by.bsuir.springbootproject.entities.PagingParams;
+import by.bsuir.springbootproject.exceptions.NoResourceFoundException;
+import by.bsuir.springbootproject.repositories.CategoryRepository;
+import by.bsuir.springbootproject.services.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,14 +34,14 @@ public class CategoryServiceImpl implements CategoryService {
         image.transferTo(new File("src\\main\\webapp\\assets\\" + fileName));
         category.setImagePath("assets/" + fileName);
         category.setProducts(new ArrayList<>());
-        categoryRepository.create(category);
+        categoryRepository.save(category);
         return new ModelAndView("redirect:/admin");
     }
 
     @Override
     @Transactional
     public ModelAndView create(Category category) {
-        categoryRepository.create(category);
+        categoryRepository.save(category);
         return new ModelAndView(PagesPaths.CATEGORY_PAGE);
     }
 
@@ -48,7 +51,8 @@ public class CategoryServiceImpl implements CategoryService {
             params.setPageNumber(Values.DEFAULT_START_PAGE);
         }
         ModelAndView modelAndView = new ModelAndView(PagesPaths.HOME_PAGE);
-        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.read(params));
+        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
+        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.findAll(paging).getContent());
         return modelAndView;
     }
 
@@ -57,12 +61,12 @@ public class CategoryServiceImpl implements CategoryService {
     public Category update(Category category) throws NoResourceFoundException {
         categoryRepository.findById(category.getId()).orElseThrow(() ->
                 new NoResourceFoundException("No category with id " + category.getId() + " found"));
-        return categoryRepository.create(category);
+        return categoryRepository.save(category);
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        categoryRepository.delete(id);
+        categoryRepository.deleteById(id);
     }
 }
